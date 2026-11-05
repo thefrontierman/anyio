@@ -2685,8 +2685,8 @@ class AsyncIOBackend(AsyncBackend):
             finally:
                 del _task_states[task]
 
-        debug = options.get("debug", None)
-        loop_factory = options.get("loop_factory", None)
+        debug = options.get("debug")
+        loop_factory = options.get("loop_factory")
         if loop_factory is None and options.get("use_uvloop", False):
             if sys.platform != "win32":
                 import uvloop
