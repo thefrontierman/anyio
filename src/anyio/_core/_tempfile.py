@@ -94,8 +94,8 @@ class TemporaryFile(Generic[AnyStr]):
         self.errors = errors
 
     async def __aenter__(self) -> AsyncFile[AnyStr]:
-        fp = await to_thread.run_sync(
-            lambda: tempfile.TemporaryFile(
+        def create_file() -> Any:
+            return tempfile.TemporaryFile(
                 self.mode,
                 self.buffering,
                 self.encoding,
@@ -105,7 +105,8 @@ class TemporaryFile(Generic[AnyStr]):
                 self.dir,
                 errors=self.errors,
             )
-        )
+
+        fp = await to_thread.run_sync(create_file)
         self._async_file = AsyncFile(fp)
         return self._async_file
 
@@ -203,9 +204,10 @@ class NamedTemporaryFile(Generic[AnyStr]):
             self._params["delete_on_close"] = delete_on_close
 
     async def __aenter__(self) -> AsyncFile[AnyStr]:
-        fp = await to_thread.run_sync(
-            lambda: tempfile.NamedTemporaryFile(**self._params)
-        )
+        def create_file() -> Any:
+            return tempfile.NamedTemporaryFile(**self._params)
+
+        fp = await to_thread.run_sync(create_file)
         self._async_file = AsyncFile(fp)
         return self._async_file
 
@@ -329,9 +331,11 @@ class SpooledTemporaryFile(AsyncFile[AnyStr]):
             buffer = self._fp
             position = buffer.tell()
             buffer.seek(0)
-            self._fp = await to_thread.run_sync(
-                lambda: tempfile.TemporaryFile(**self._tempfile_params)
-            )
+
+            def create_file() -> Any:
+                return tempfile.TemporaryFile(**self._tempfile_params)
+
+            self._fp = await to_thread.run_sync(create_file)
             await self.write(buffer.read())
             await self.seek(position)
             buffer.close()
