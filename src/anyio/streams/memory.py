@@ -108,7 +108,7 @@ class MemoryObjectReceiveStream(ObjectReceiveStream[T_co], Generic[T_co]):
 
         if self._state.buffer:
             return self._state.buffer.popleft()
-        elif not self._state.open_send_channels:
+        if not self._state.open_send_channels:
             raise EndOfStream
 
         raise WouldBlock
