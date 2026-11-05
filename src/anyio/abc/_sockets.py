@@ -77,7 +77,7 @@ def _validate_socket(
             if not bound_addr:
                 raise ValueError("the socket must be bound to a local address")
 
-        if addr_family != socket.AF_UNSPEC and sock.family != addr_family:
+        if addr_family not in (socket.AF_UNSPEC, sock.family):
             raise ValueError(
                 f"address family mismatch: expected {addr_family.name}, got "
                 f"{sock.family.name}"
