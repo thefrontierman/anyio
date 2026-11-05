@@ -585,7 +585,7 @@ async def create_connected_udp_socket(
 
 async def create_unix_datagram_socket(
     *,
-    local_path: None | str | bytes | PathLike[Any] = None,
+    local_path: str | bytes | PathLike[Any] | None = None,
     local_mode: int | None = None,
 ) -> UNIXDatagramSocket:
     """
@@ -614,7 +614,7 @@ async def create_unix_datagram_socket(
 async def create_connected_unix_datagram_socket(
     remote_path: str | bytes | PathLike[Any],
     *,
-    local_path: None | str | bytes | PathLike[Any] = None,
+    local_path: str | bytes | PathLike[Any] | None = None,
     local_mode: int | None = None,
 ) -> ConnectedUNIXDatagramSocket:
     """
@@ -875,7 +875,7 @@ def convert_ipv6_sockaddr(
 
 
 async def setup_unix_local_socket(
-    path: None | str | bytes | PathLike[Any],
+    path: str | bytes | PathLike[Any] | None,
     mode: int | None,
     socktype: int,
 ) -> socket.socket:
