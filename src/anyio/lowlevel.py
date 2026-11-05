@@ -180,7 +180,7 @@ class RunVar(Generic[T]):
         except KeyError:
             if default is not RunVar.NO_VALUE_SET:
                 return default
-            elif self._default is not RunVar.NO_VALUE_SET:
+            if self._default is not RunVar.NO_VALUE_SET:
                 return self._default
 
         raise LookupError(
