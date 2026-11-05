@@ -173,12 +173,11 @@ class Future(Generic[T]):
         """
         if not self._finished_event.is_set():
             return Future.Status.PENDING
-        elif self._cancelled:
+        if self._cancelled:
             return Future.Status.CANCELLED
-        elif self._exception is not None:
+        if self._exception is not None:
             return Future.Status.FAILED
-        else:
-            return Future.Status.FINISHED
+        return Future.Status.FINISHED
 
     def __await__(self) -> Generator[Any, Any, T]:
         yield from self.wait().__await__()
