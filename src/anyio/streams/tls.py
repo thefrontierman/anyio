@@ -229,8 +229,7 @@ class TLSStream(ByteStream):
                 ):
                     if self.standard_compatible:
                         raise BrokenResourceError from exc
-                    else:
-                        raise EndOfStream from None
+                    raise EndOfStream from None
 
                 raise
             else:
