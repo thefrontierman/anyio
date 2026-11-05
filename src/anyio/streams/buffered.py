@@ -75,21 +75,19 @@ class BufferedByteReceiveStream(ByteReceiveStream):
             chunk = bytes(self._buffer[:max_bytes])
             del self._buffer[:max_bytes]
             return chunk
-        elif isinstance(self.receive_stream, ByteReceiveStream):
+        if isinstance(self.receive_stream, ByteReceiveStream):
             return await self.receive_stream.receive(max_bytes)
-        else:
-            # With a bytes-oriented object stream, we need to handle any surplus bytes
-            # we get from the receive() call
-            while True:
-                if chunk := await self.receive_stream.receive():
-                    break
+        # With a bytes-oriented object stream, we need to handle any surplus bytes
+        # we get from the receive() call
+        while True:
+            if chunk := await self.receive_stream.receive():
+                break
 
-            if len(chunk) > max_bytes:
-                # Save the surplus bytes in the buffer
-                self._buffer.extend(chunk[max_bytes:])
-                return chunk[:max_bytes]
-            else:
-                return chunk
+        if len(chunk) > max_bytes:
+            # Save the surplus bytes in the buffer
+            self._buffer.extend(chunk[max_bytes:])
+            return chunk[:max_bytes]
+        return chunk
 
     async def receive_exactly(self, nbytes: int) -> bytes:
         """
