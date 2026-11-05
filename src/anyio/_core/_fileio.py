@@ -1006,7 +1006,7 @@ class Path:
             suffix = self._path.suffix
             if not suffix:
                 return self.with_name(stem)
-            elif not stem:
+            if not stem:
                 # If the suffix is non-empty, we can't make the stem empty.
                 raise ValueError(f"{self!r} has a non-empty suffix")
             else:
