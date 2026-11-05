@@ -371,15 +371,12 @@ class TaskHandle(Generic[T_co, T_startval_co]):
         if not self._finished_event.is_set():
             if self._cancel_scope.cancel_called:
                 return TaskHandle.Status.CANCELLING
-            else:
-                return TaskHandle.Status.PENDING
-        elif self._exception is not None:
+            return TaskHandle.Status.PENDING
+        if self._exception is not None:
             if isinstance(self._exception, get_cancelled_exc_class()):
                 return TaskHandle.Status.CANCELLED
-            else:
-                return TaskHandle.Status.FAILED
-        else:
-            return TaskHandle.Status.FINISHED
+            return TaskHandle.Status.FAILED
+        return TaskHandle.Status.FINISHED
 
     @property
     def name(self) -> str:
