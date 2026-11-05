@@ -140,7 +140,7 @@ class AsyncContextManagerMixin:
                     "an async context manager. Did you forget to add the "
                     "@asynccontextmanager decorator?"
                 )
-            elif iscoroutine(cm):
+            if iscoroutine(cm):
                 cm.close()
                 raise TypeError(
                     "__asynccontextmanager__() returned a coroutine object instead of "
