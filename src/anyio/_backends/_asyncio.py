@@ -1388,6 +1388,9 @@ def _forcibly_shutdown_process_pool_on_exit(
             child_watcher.remove_child_handler(process.pid)
 
 
+_process_pool_shutdown_tasks: set[asyncio.Task[None]] = set()
+
+
 async def _shutdown_process_pool_on_exit(workers: set[abc.Process]) -> None:
     """
     Shuts down worker processes belonging to this event loop.
@@ -2963,10 +2966,12 @@ class AsyncIOBackend(AsyncBackend):
 
     @classmethod
     def setup_process_pool_exit_at_shutdown(cls, workers: set[abc.Process]) -> None:
-        create_task(
+        task = create_task(
             _shutdown_process_pool_on_exit(workers),
             name="AnyIO process pool shutdown task",
         )
+        _process_pool_shutdown_tasks.add(task)
+        task.add_done_callback(_process_pool_shutdown_tasks.discard)
         find_root_task().add_done_callback(
             partial(_forcibly_shutdown_process_pool_on_exit, workers)  # type:ignore[arg-type]
         )
