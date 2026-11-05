@@ -139,8 +139,7 @@ class MemoryObjectReceiveStream(ObjectReceiveStream[T_co], Generic[T_co]):
             except AttributeError:
                 if self._closed:
                     raise ClosedResourceError from None
-                else:
-                    raise EndOfStream from None
+                raise EndOfStream from None
 
     def clone(self) -> MemoryObjectReceiveStream[T_co]:
         """
@@ -285,7 +284,7 @@ class MemoryObjectSendStream(ObjectSendStream[T_contra], Generic[T_contra]):
 
             if item_not_consumed:
                 raise BrokenResourceError from None
-            elif withdrawn:
+            if withdrawn:
                 raise ClosedResourceError from None
 
     def clone(self) -> MemoryObjectSendStream[T_contra]:
