@@ -14,7 +14,7 @@ import sys
 from collections import deque
 from collections.abc import Callable
 from types import ModuleType
-from typing import TypeVar, cast
+from typing import TextIO, TypeVar, cast
 
 from ._core._eventloop import current_time, get_async_backend, get_cancelled_exc_class
 from ._core._exceptions import BrokenWorkerProcess
@@ -209,10 +209,18 @@ def process_worker() -> None:
     # parent-worker communication
     stdin = sys.stdin
     stdout = sys.stdout
-    sys.stdin = open(os.devnull)
-    sys.stdout = open(os.devnull, "w")
-    sys.stderr = open(os.devnull, "w")
+    with (
+        open(os.devnull) as devnull_in,
+        open(os.devnull, "w") as devnull_out,
+        open(os.devnull, "w") as devnull_err,
+    ):
+        sys.stdin = devnull_in
+        sys.stdout = devnull_out
+        sys.stderr = devnull_err
+        _run_worker_loop(stdin, stdout)
 
+
+def _run_worker_loop(stdin: TextIO, stdout: TextIO) -> None:
     stdout.buffer.write(b"READY\n")
     while True:
         retval = exception = None
