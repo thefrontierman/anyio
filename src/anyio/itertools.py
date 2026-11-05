@@ -48,6 +48,7 @@ if sys.version_info < (3, 15):
 T = TypeVar("T")
 R = TypeVar("R")
 _tee_end = sentinel("_tee_end")
+_batched_end = sentinel("_batched_end")
 
 
 @dataclass(eq=False)
@@ -183,9 +184,8 @@ async def batched(
     while True:
         batch: list[T] = []
         for _ in range(n):
-            try:
-                batch.append(await anext(iterator))
-            except StopAsyncIteration:
+            value = await anext(iterator, _batched_end)
+            if value is _batched_end:
                 if not batch:
                     await checkpoint()
                     return
@@ -194,6 +194,8 @@ async def batched(
 
                 yield tuple(batch)
                 return
+
+            batch.append(value)
 
         yield tuple(batch)
 
