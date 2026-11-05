@@ -10,6 +10,7 @@ __all__ = (
     "current_token",
 )
 
+import contextlib
 import enum
 from dataclasses import dataclass
 from types import TracebackType
@@ -215,10 +216,8 @@ class RunVar(Generic[T]):
             raise ValueError("This token has already been used")
 
         if token._value is _NoValueSet.NO_VALUE_SET:
-            try:
+            with contextlib.suppress(KeyError):
                 del self._current_vars[self]
-            except KeyError:
-                pass
         else:
             self._current_vars[self] = token._value
 
