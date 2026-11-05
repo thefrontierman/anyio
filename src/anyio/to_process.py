@@ -89,15 +89,13 @@ async def run_sync(  # type: ignore[return]
 
             if isinstance(exc, get_cancelled_exc_class()):
                 raise
-            else:
-                raise BrokenWorkerProcess from exc
+            raise BrokenWorkerProcess from exc
 
         retval = pickle.loads(pickled_response)
         if status == b"EXCEPTION":
             assert isinstance(retval, BaseException)
             raise retval
-        else:
-            return retval
+        return retval
 
     # First pickle the request before trying to reserve a worker process
     await checkpoint_if_cancelled()
