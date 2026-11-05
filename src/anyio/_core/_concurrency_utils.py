@@ -5,7 +5,7 @@ from inspect import iscoroutine
 __all__ = ("amap", "as_completed", "gather")
 
 from collections.abc import AsyncGenerator, Awaitable, Callable, Coroutine, Iterable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from ..abc._tasks import get_coro_name
@@ -120,10 +120,8 @@ async def as_completed(
             try:
                 return await awaitable
             finally:
-                try:
+                with suppress(BrokenResourceError):
                     _send.send_nowait(task_handles[index])
-                except BrokenResourceError:
-                    pass
 
     async with recv, create_task_group() as tg:
         async with send:
