@@ -45,12 +45,11 @@ def _validate_socket(
                 raise ValueError(
                     "the file descriptor does not refer to a socket"
                 ) from exc
-            elif require_connected:
+            if require_connected:
                 raise ValueError("the socket must be connected") from exc
-            elif require_bound:
+            if require_bound:
                 raise ValueError("the socket must be bound to a local address") from exc
-            else:
-                raise
+            raise
     elif isinstance(sock_or_fd, socket.socket):
         sock = sock_or_fd
     else:
