@@ -2766,10 +2766,9 @@ class AsyncIOBackend(AsyncBackend):
             if cancel_scope._cancel_called:
                 deadline = -math.inf
                 break
-            elif cancel_scope.shield:
+            if cancel_scope.shield:
                 break
-            else:
-                cancel_scope = cancel_scope._parent_scope
+            cancel_scope = cancel_scope._parent_scope
 
         return deadline
 
