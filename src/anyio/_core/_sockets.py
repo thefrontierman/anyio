@@ -868,10 +868,8 @@ def convert_ipv6_sockaddr(
 
             # Add scope_id to the address
             return f"{host}%{scope_id}", port
-        else:
-            return host, port
-    else:
-        return sockaddr
+        return host, port
+    return sockaddr
 
 
 async def setup_unix_local_socket(
@@ -1011,7 +1009,7 @@ def as_connectable(
     connectable: TCPConnectable | UNIXConnectable | TLSConnectable
     if isinstance(remote, ByteStreamConnectable):
         return remote
-    elif isinstance(remote, tuple) and len(remote) == 2:
+    if isinstance(remote, tuple) and len(remote) == 2:
         connectable = TCPConnectable(*remote)
     elif isinstance(remote, (str, bytes, PathLike)):
         connectable = UNIXConnectable(remote)
