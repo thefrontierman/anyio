@@ -47,9 +47,13 @@ _runner_leases = 0
 def extract_backend_and_options(backend: object) -> tuple[str, dict[str, Any]]:
     if isinstance(backend, str):
         return backend, {}
-    elif isinstance(backend, tuple) and len(backend) == 2:
-        if isinstance(backend[0], str) and isinstance(backend[1], dict):
-            return cast(tuple[str, dict[str, Any]], backend)
+    elif (
+        isinstance(backend, tuple)
+        and len(backend) == 2
+        and isinstance(backend[0], str)
+        and isinstance(backend[1], dict)
+    ):
+        return cast(tuple[str, dict[str, Any]], backend)
 
     raise TypeError("anyio_backend must be either a string or tuple of (string, dict)")
 
@@ -169,22 +173,23 @@ def pytest_fixture_setup(fixturedef: Any, request: Any) -> Generator[Any]:
     # Only apply this to coroutine functions and async generator functions in requests
     # that involve the anyio_backend fixture
     func = fixturedef.func
-    if isasyncgenfunction(func) or iscoroutinefunction(func):
-        if "anyio_backend" in request.fixturenames:
-            fixturedef.func = wrapper
-            original_argname = fixturedef.argnames
+    if (isasyncgenfunction(func) or iscoroutinefunction(func)) and (
+        "anyio_backend" in request.fixturenames
+    ):
+        fixturedef.func = wrapper
+        original_argname = fixturedef.argnames
 
-            if not (has_backend_arg := "anyio_backend" in fixturedef.argnames):
-                fixturedef.argnames += ("anyio_backend",)
+        if not (has_backend_arg := "anyio_backend" in fixturedef.argnames):
+            fixturedef.argnames += ("anyio_backend",)
 
-            if not (has_request_arg := "request" in fixturedef.argnames):
-                fixturedef.argnames += ("request",)
+        if not (has_request_arg := "request" in fixturedef.argnames):
+            fixturedef.argnames += ("request",)
 
-            try:
-                return (yield)
-            finally:
-                fixturedef.func = func
-                fixturedef.argnames = original_argname
+        try:
+            return (yield)
+        finally:
+            fixturedef.func = func
+            fixturedef.argnames = original_argname
 
     return (yield)
 
