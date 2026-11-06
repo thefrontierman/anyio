@@ -72,12 +72,13 @@ def fix_package_names() -> None:
     module_prefix = module_globals["__name__"] + "."
     del module_globals[fix_package_names.__name__]
     for value in module_globals.values():
-        if modname := getattr(value, "__module__", ""):
-            if modname.startswith(module_prefix):
-                parts = modname.split(".")
-                value.__module__ = ".".join(
-                    part for part in parts if not part.startswith("_")
-                )
+        if (modname := getattr(value, "__module__", "")) and modname.startswith(
+            module_prefix
+        ):
+            parts = modname.split(".")
+            value.__module__ = ".".join(
+                part for part in parts if not part.startswith("_")
+            )
 
 
 def emit_deprecation_warning(module_name: str, name: str, target: str) -> None:
